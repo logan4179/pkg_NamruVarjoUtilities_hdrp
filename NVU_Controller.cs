@@ -52,7 +52,7 @@ namespace NamruVarjoUtilities
         private Vector3 triggerRotation; // Controller trigger rotation
         public bool TriggerButton { get { return triggerButton; } }
         public UnityEvent Event_TriggerClicked = new UnityEvent(); //logan added
-        private bool flag_triggerClickedThisFrame = false; // logan-added
+        private bool flag_triggerEventHasBeenInvokedForThisPress = false; // logan-added
 
         #endregion
 
@@ -94,8 +94,7 @@ namespace NamruVarjoUtilities
         public float Trigger { get { return trigger; } }
 
 
-
-        void OnEnable()
+        protected virtual void OnEnable()
         {
             //Event_PrimaryAxisClicked = new UnityEvent();
 
@@ -105,24 +104,18 @@ namespace NamruVarjoUtilities
             }
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             //Event_PrimaryAxisClicked.RemoveAllListeners(); //I think this may take away it's functionality given through the inspector...
         }
 
-        private void Awake()
-        {
-            
-        }
-
-        private void Start()
+        protected virtual void Start()
         {
             flag_primaryAxisClickedThisFrame = false;
-            flag_triggerClickedThisFrame = false;
+            flag_triggerEventHasBeenInvokedForThisPress = false;
         }
 
-        public bool doingPositional = true;
-        void Update()
+        protected virtual void Update()
         {
             if (!device.isValid)
             {
@@ -131,70 +124,54 @@ namespace NamruVarjoUtilities
 
             DBG_isVAlid = device.isValid;
 
-
-            if ( Input.GetKeyDown(KeyCode.Q) )
-            {
-                doingPositional = !doingPositional;
-                Debug.Log($"flipped doing positional to: '{doingPositional}'.");
-
-            }
-
             // Get values for device position, rotation and buttons.
             if (device.TryGetFeatureValue(CommonUsages.devicePosition, out devicePosition))
             {
-                if( doingPositional )
-                {
-                    //transform.localPosition = devicePosition;
-
-                }
+                transform.localPosition = devicePosition;
             }
 
             if (device.TryGetFeatureValue(CommonUsages.deviceRotation, out deviceRotation))
             {
-                if (doingPositional)
-                {
-                    //transform.localRotation = deviceRotation;
-
-                }
+                transform.localRotation = deviceRotation;
             }
 
             if (device.TryGetFeatureValue(CommonUsages.trigger, out trigger))
             {
-                ControllerInput();
+                UpdateControllerVisual();
             }
 
             if (device.TryGetFeatureValue(CommonUsages.triggerButton, out triggerButton))
             {
-                ControllerInput();
+                UpdateControllerVisual();
             }
 
             if ( triggerButton )
             {
-                if ( !flag_triggerClickedThisFrame )
+                if ( !flag_triggerEventHasBeenInvokedForThisPress )
                 {
-                    flag_triggerClickedThisFrame = true;
+                    flag_triggerEventHasBeenInvokedForThisPress = true;
 
                     Event_TriggerClicked.Invoke();
                 }
             }
             else
             {
-                flag_triggerClickedThisFrame = false;
+                flag_triggerEventHasBeenInvokedForThisPress = false;
             }
 
             if (device.TryGetFeatureValue(CommonUsages.gripButton, out gripButton))
             {
-                ControllerInput();
+                UpdateControllerVisual();
             }
 
             if (device.TryGetFeatureValue(CommonUsages.primary2DAxisTouch, out primary2DAxisTouch))
             {
-                ControllerInput();
+                UpdateControllerVisual();
             }
 
             if ( device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out primary2DAxisClick) )
             {
-                ControllerInput();
+                UpdateControllerVisual();
             }
 
             if ( primary2DAxisClick )
@@ -213,13 +190,13 @@ namespace NamruVarjoUtilities
 
             if (device.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton))
             {
-                ControllerInput();
+                UpdateControllerVisual();
             }
 
             //Logan added...
             if (device.TryGetFeatureValue(CommonUsages.primary2DAxis, out val_primaryAxis))
             {
-                ControllerInput();
+                UpdateControllerVisual();
             }
 
             device.TryGetFeatureValue(CommonUsages.deviceAngularVelocity, out deviceAngularVelocity);
@@ -233,7 +210,7 @@ namespace NamruVarjoUtilities
             device = devices.FirstOrDefault();
         }
 
-        void ControllerInput()
+        void UpdateControllerVisual()
         {
             //Set trigger rotation from input
             triggerRotation.Set(trigger * -30f, 0, 0);

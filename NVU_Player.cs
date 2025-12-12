@@ -16,7 +16,7 @@ namespace NamruVarjoUtilities
         [SerializeField] private Vector3 v_offsetRepositionOnStart = Vector3.zero;
         [SerializeField] private Quaternion q_offsetRepositionOnStart = Quaternion.identity;
 
-        void Start()
+        public virtual void Start()
         {
             if( meshRenderers_toDisable != null && meshRenderers_toDisable.Length > 0 )
             {
