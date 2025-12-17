@@ -44,6 +44,8 @@ namespace NamruVarjoUtilities
         private Vector3 deviceAngularVelocity; // Controller angular velocity
         private Vector3 deviceVelocity; // Controller velocity
 
+        #region CONTROLS ===============================================================
+
         #region TRIGGER INPUT --------------------------------------------
         public bool triggerButton;
 
@@ -92,6 +94,12 @@ namespace NamruVarjoUtilities
         public Vector3 DeviceAngularVelocity { get { return deviceAngularVelocity; } }
 
         public float Trigger { get { return trigger; } }
+
+        #endregion
+
+        [Header("REFERENCE (EXTERNAL)")]
+        [SerializeField] private NVU_SelectPointer _selectPointer;
+        public NVU_SelectPointer SelectPointer => _selectPointer;
 
 
         protected virtual void OnEnable()
@@ -152,6 +160,14 @@ namespace NamruVarjoUtilities
                     flag_triggerEventHasBeenInvokedForThisPress = true;
 
                     Event_TriggerClicked.Invoke();
+
+                    if( _selectPointer.AmHot && 
+                        _selectPointer.ControllerClickInput == NVU_ButtonType.Trigger &&
+                        _selectPointer.CurrentHit.transform != null
+                    )
+                    {
+                        _selectPointer.TryClickCurrentTarget();
+                    }
                 }
             }
             else
