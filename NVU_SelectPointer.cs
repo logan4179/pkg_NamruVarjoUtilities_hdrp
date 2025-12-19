@@ -55,6 +55,7 @@ namespace NamruVarjoUtilities
         //OTHER
         private float cachedLineLength = 2.5f;
         [SerializeField] private Button currentlySelectedButton;
+        public Button CurrentlySelectedButton => currentlySelectedButton;
 
         public UnityEvent Event_ClickedTarget;
 
