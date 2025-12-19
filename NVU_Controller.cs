@@ -54,7 +54,8 @@ namespace NamruVarjoUtilities
         private Vector3 triggerRotation; // Controller trigger rotation
         public bool TriggerButton { get { return triggerButton; } }
         public UnityEvent Event_TriggerClicked = new UnityEvent(); //logan added
-        private bool flag_triggerEventHasBeenInvokedForThisPress = false; // logan-added
+        private bool flag_triggerWasPressedOnThisFrame = false; // logan-added
+        public bool Flag_TriggerWasPressedOnThisFrame => flag_triggerWasPressedOnThisFrame;
 
         #endregion
 
@@ -120,7 +121,7 @@ namespace NamruVarjoUtilities
         protected virtual void Start()
         {
             flag_primaryAxisClickedThisFrame = false;
-            flag_triggerEventHasBeenInvokedForThisPress = false;
+            flag_triggerWasPressedOnThisFrame = false;
         }
 
         protected virtual void Update()
@@ -155,9 +156,9 @@ namespace NamruVarjoUtilities
 
             if ( triggerButton )
             {
-                if ( !flag_triggerEventHasBeenInvokedForThisPress )
+                if ( !flag_triggerWasPressedOnThisFrame )
                 {
-                    flag_triggerEventHasBeenInvokedForThisPress = true;
+                    flag_triggerWasPressedOnThisFrame = true;
 
                     Event_TriggerClicked.Invoke();
 
@@ -172,7 +173,7 @@ namespace NamruVarjoUtilities
             }
             else
             {
-                flag_triggerEventHasBeenInvokedForThisPress = false;
+                flag_triggerWasPressedOnThisFrame = false;
             }
 
             if (device.TryGetFeatureValue(CommonUsages.gripButton, out gripButton))

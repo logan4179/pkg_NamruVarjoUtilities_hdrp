@@ -1,6 +1,6 @@
 {
   "name": "com.loganland.namru-varjo-utilities",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "NAMRU Varjo Utilities",
   "description": "Contains common utilities for speeding up development of varjo projects.",
   "documentationUrl": "https://example.com/",
