@@ -1,6 +1,3 @@
-using System.Reflection;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
-using Unity.VisualScripting.YamlDotNet.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -50,6 +47,12 @@ namespace NamruVarjoUtilities
                 return _lineRenderer.enabled;
             }
         }
+
+        /// <summary>
+        /// Outside scripts can use this property to know if this select pointer is pointing at anything 
+        /// set with a layer value matching the target mask.
+        /// </summary>
+        public bool Flag_AmCurrentlyPointingAtSomething => CurrentHit.transform != null;
 
 
         //OTHER
