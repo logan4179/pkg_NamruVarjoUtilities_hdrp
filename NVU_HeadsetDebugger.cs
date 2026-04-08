@@ -5,7 +5,7 @@ using UnityEngine.XR;
 
 namespace NamruVarjoUtilities
 {
-    public class HeadsetDebugger : MonoBehaviour
+    public class NVU_HeadsetDebugger : MonoBehaviour
     {
         //[Header("SETTINGS")]
         //[SerializeField] private 

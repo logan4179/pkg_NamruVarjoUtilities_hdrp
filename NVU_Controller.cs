@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SpatialTracking;
 using UnityEngine.XR;
 using Varjo.XR;
 
@@ -30,7 +31,6 @@ namespace NamruVarjoUtilities
         public Material touchpadTouchedMaterial;
 
         [Header("Visible only for debugging")]
-        public bool DBG_isVAlid;
         public bool gripButton;
         public bool primary2DAxisTouch;
         public bool primary2DAxisClick;
@@ -46,7 +46,7 @@ namespace NamruVarjoUtilities
 
         #region CONTROLS ===============================================================
 
-        #region TRIGGER INPUT --------------------------------------------
+        //#region TRIGGER INPUT --------------------------------------------
         public bool triggerButton;
 
         public float trigger;
@@ -57,7 +57,7 @@ namespace NamruVarjoUtilities
         private bool flag_triggerWasPressedOnThisFrame = false; // logan-added
         public bool Flag_TriggerWasPressedOnThisFrame => flag_triggerWasPressedOnThisFrame;
 
-        #endregion
+        //#endregion
 
         public bool AmValid { get { return device.isValid; } }
         public bool DeviceIsNull { get { return device == null; } } //Logan added
@@ -101,6 +101,10 @@ namespace NamruVarjoUtilities
         [Header("REFERENCE (EXTERNAL)")]
         [SerializeField] private NVU_SelectPointer _selectPointer;
         public NVU_SelectPointer SelectPointer => _selectPointer;
+        [SerializeField] private TrackedPoseDriver _trackedPoseDriver;
+
+        [Header("DEBUG")]
+        [SerializeField, TextArea(1,15)] private string dbg_class;
 
 
         protected virtual void OnEnable()
@@ -118,20 +122,51 @@ namespace NamruVarjoUtilities
             //Event_PrimaryAxisClicked.RemoveAllListeners(); //I think this may take away it's functionality given through the inspector...
         }
 
+        private void Awake()
+        {
+            if ( _trackedPoseDriver == null && !TryGetComponent<TrackedPoseDriver>(out _trackedPoseDriver) )
+            {
+                Debug.LogWarning($"NVU WARNING! Cannot find TrackedPoseDriver component! Won't be able to validate correct handedness settings...");
+            }
+        }
+
         protected virtual void Start()
         {
             flag_primaryAxisClickedThisFrame = false;
             flag_triggerWasPressedOnThisFrame = false;
+
+            if ( _trackedPoseDriver != null )
+            {
+                //if( _trackedPoseDriver.poseSource == trackedposes
+                Debug.Log($"{name}.{_trackedPoseDriver.poseSource}");
+
+                if( XRNode == XRNode.LeftHand && _trackedPoseDriver.poseSource != TrackedPoseDriver.TrackedPose.LeftPose )
+                {
+                    Debug.LogWarning($"NVU WARNING! {nameof(XRNode)} set to left hand, but TrackedPoseDriver pose source not set to left hand! This will likely cause problems");
+                }
+                else if (XRNode == XRNode.RightHand && _trackedPoseDriver.poseSource != TrackedPoseDriver.TrackedPose.RightPose)
+                {
+                    Debug.LogWarning($"NVU WARNING! {nameof(XRNode)} set to right hand, but TrackedPoseDriver pose source not set to right hand! This will likely cause problems");
+                }
+                else if ( (XRNode != XRNode.RightHand && XRNode != XRNode.LeftHand) || 
+                    (_trackedPoseDriver.poseSource != TrackedPoseDriver.TrackedPose.RightPose && _trackedPoseDriver.poseSource != TrackedPoseDriver.TrackedPose.LeftPose) 
+                    )
+                {
+                    Debug.LogWarning($"NVU WARNING! There's a problem with the handedness settings on either the xrnode or the trackedposedriver pose source on controller: '{name}'! " +
+                        $"This will likely cause problems");
+                }
+            }
         }
 
         protected virtual void Update()
         {
+            dbg_class = $"isValid: '{device.isValid}'\n";
+
             if (!device.isValid)
             {
                 GetDevice();
             }
 
-            DBG_isVAlid = device.isValid;
 
             // Get values for device position, rotation and buttons.
             if (device.TryGetFeatureValue(CommonUsages.devicePosition, out devicePosition))
@@ -278,8 +313,14 @@ namespace NamruVarjoUtilities
         public string GetControllerText()
         {
             return
+                $"{nameof(device.isValid)}: '{device.isValid}'\n" +
+                "\n" +
+
                 $"{nameof(devicePosition)}: '{devicePosition}'\n" +
                 $"{nameof(deviceRotation)}: '{deviceRotation}'\n" +
+                "\n" +
+
+
 
                 $"<b>Primary Axis--------------</b>\n" +
                 $"{nameof(val_primaryAxis)}: '{val_primaryAxis}'\n" +

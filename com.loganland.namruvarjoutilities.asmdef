@@ -3,7 +3,8 @@
     "rootNamespace": "NamruVarjoUtilities",
     "references": [
         "GUID:c4bc6ee480683d344ab65cdeb7831928",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:ba171b3dd2a51234ab864770f99741a5"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
